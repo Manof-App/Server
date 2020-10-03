@@ -5,7 +5,7 @@ const auth = require("../middleware/auth.js");
 const router = new express.Router();
 
 // Create an activity
-router.post("activities", auth, async (req, res) => {
+router.post("/activities", auth, async (req, res) => {
   const newActivity = new Activity({
     ...req.body,
     relatedEmailId: req.user.email,
@@ -50,6 +50,7 @@ router.get("/allActivities", auth, async (req, res) => {
 router.get("/activities", auth, async (req, res) => {
   const match = {};
   const sort = {};
+
   if (req.query.isApproved) {
     match.isApproved = req.query.isApproved === "false";
   }
@@ -71,7 +72,6 @@ router.get("/activities", auth, async (req, res) => {
         },
       })
       .execPopulate();
-    //console.log(req.user.activities);
     res.send(req.user.activities);
   } catch (error) {
     console.log(error);
@@ -80,8 +80,9 @@ router.get("/activities", auth, async (req, res) => {
 });
 
 // Get a single activity
-router.get("activities/:id", auth, async (req, res) => {
+router.get("/activities/:id", auth, async (req, res) => {
   const _id = req.params.id;
+  console.log(_id);
 
   try {
     const activity = await Activity.findOne({
@@ -108,6 +109,7 @@ router.delete("activities/:id", auth, async (req, res) => {
       relatedEmailId: req.user.email,
     });
 
+    console.log(activity);
     if (!activity) {
       res.status(404).send("Activity not found!");
     }
@@ -120,7 +122,7 @@ router.delete("activities/:id", auth, async (req, res) => {
 });
 
 // Update activity by id
-router.patch("activities/:id", auth, async (req, res) => {
+router.patch("/activities/:id", auth, async (req, res) => {
   const _id = req.params.id;
 
   try {

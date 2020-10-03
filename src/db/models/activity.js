@@ -66,6 +66,12 @@ const activitySchema = new mongoose.Schema(
       trim: true,
     },
 
+    targetAudienceDetails: {
+      type: String,
+      required: false,
+      trim: true,
+    },
+
     summarizeDate: {
       type: Date,
       require: false,
@@ -83,6 +89,18 @@ const activitySchema = new mongoose.Schema(
       type: Object,
       required: false,
       trim: true,
+      latitude: {
+        type: Number,
+      },
+      longitude: {
+        type: Number,
+      },
+      city: {
+        type: String,
+      },
+      principalSubdivision: {
+        type: String,
+      },
     },
 
     isApproved: {
@@ -97,6 +115,12 @@ const activitySchema = new mongoose.Schema(
     timestamp: true,
   }
 );
+
+activitySchema.virtual("officials", {
+  ref: "Official",
+  localField: "_id",
+  foreignField: "relatedActivityId",
+});
 
 // Create activity model and exports
 const Activity = mongoose.model("Activity", activitySchema);
