@@ -109,6 +109,13 @@ const activitySchema = new mongoose.Schema(
       trim: true,
       default: false,
     },
+
+    status: {
+      type: String,
+      required: false,
+      trim: true,
+      default: "not active",
+    },
   },
 
   {

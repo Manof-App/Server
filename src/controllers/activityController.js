@@ -7,7 +7,6 @@ const router = new express.Router();
 // Create an activity
 router.post("/activities", auth, async (req, res) => {
   const newActivity = new Activity({
-    ...req.body,
     relatedEmailId: req.user.email,
   });
 
@@ -82,7 +81,6 @@ router.get("/activities", auth, async (req, res) => {
 // Get a single activity
 router.get("/activities/:id", auth, async (req, res) => {
   const _id = req.params.id;
-  console.log(_id);
 
   try {
     const activity = await Activity.findOne({
@@ -100,7 +98,7 @@ router.get("/activities/:id", auth, async (req, res) => {
 });
 
 // Delete an activity by id
-router.delete("activities/:id", auth, async (req, res) => {
+router.delete("/activities/:id", auth, async (req, res) => {
   const _id = req.params.id;
 
   try {

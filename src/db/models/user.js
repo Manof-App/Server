@@ -8,6 +8,13 @@ const UTILS = require("../../common/utils.js");
 // Create user schema
 const userSchema = new mongoose.Schema(
   {
+    role: {
+      type: String,
+      required: true,
+      trim: true,
+      default: "מנהל מחלקה",
+    },
+
     userId: {
       type: String,
       required: false,
@@ -67,26 +74,26 @@ const userSchema = new mongoose.Schema(
       },
     },
 
-    // address: {
-    //   require: false,
-    //   house: {
-    //     type: String,
-    //     require: false,
-    //     default: "House address is missing",
-    //   },
+    address: {
+      require: false,
+      house: {
+        type: String,
+        require: false,
+        default: "House address is missing",
+      },
 
-    //   street: {
-    //     type: String,
-    //     require: false,
-    //     default: "Street address is missing",
-    //   },
+      street: {
+        type: String,
+        require: false,
+        default: "Street address is missing",
+      },
 
-    //   city: {
-    //     type: String,
-    //     require: false,
-    //     default: "City address is missing",
-    //   },
-    // },
+      city: {
+        type: String,
+        require: false,
+        default: "City address is missing",
+      },
+    },
 
     phone: {
       type: String,

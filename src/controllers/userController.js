@@ -64,6 +64,15 @@ router.get("/users/me", auth, async (req, res) => {
   }
 });
 
+router.get("/users/all", async (req, res) => {
+  try {
+    const users = await User.find({});
+    res.status(200).json(users);
+  } catch (error) {
+    res.status(500).send("Failed");
+  }
+});
+
 // Delete user
 router.delete("/users/me", auth, async (req, res) => {
   try {
@@ -78,7 +87,15 @@ router.delete("/users/me", auth, async (req, res) => {
 // Update logged in user
 router.patch("/users/me", auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowUpdates = ["firstName", "lastName", "email", "password"];
+  const allowUpdates = [
+    "firstName",
+    "lastName",
+    "email",
+    "password",
+    "phone",
+    "address",
+    "role",
+  ];
   const isValidationOperation = updates.every((currentUpdate) =>
     allowUpdates.includes(currentUpdate)
   );
