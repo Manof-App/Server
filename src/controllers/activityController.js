@@ -1,13 +1,16 @@
-const express = require("express");
-const Activity = require("../db/models/activity");
-const auth = require("../middleware/auth.js");
+const express = require('express');
+const mongoose = require('mongoose');
+const Activity = require('../db/models/activity');
+const UTIL = require('../common/utils.js');
+const auth = require('../middleware/auth.js');
 
 const router = new express.Router();
 
 // Create an activity
-router.post("/activities", auth, async (req, res) => {
+router.post('/activities', async (req, res) => {
   const newActivity = new Activity({
-    relatedEmailId: req.user.email,
+    ...req.body,
+    _id: new mongoose.Types.ObjectId(),
   });
 
   try {
@@ -19,59 +22,85 @@ router.post("/activities", auth, async (req, res) => {
   }
 });
 
-// Get all orders for logged in customer
-router.get("/allActivities", auth, async (req, res) => {
-  // const match = {};
-
-  // if (req.query.isApproved) {
-  //   match.isApproved = req.query.isApproved === "false";
-  // }
-
+// Get all activities
+router.get('/allActivities', async (req, res) => {
   try {
-    await req.user
-      .populate({
-        path: "activities",
-        options: {
-          limit: 4,
-        },
-      })
-      .execPopulate();
-    res.send(req.user.activities);
+    const activities = await Activity.find({});
+
+    res.send(activities);
   } catch (error) {
     res.status(500).send();
   }
 });
 
 // Get all activities for logged in user
-// GET /activities?isApproved=true
-// GET /activities?limit=10&skip=0
-// GET /activities?sortBy=startDate_desc
-router.get("/activities", auth, async (req, res) => {
-  const match = {};
-  const sort = {};
+router.get('/activities', async (req, res) => {
+  let sort = {};
+  let isApproved;
+  let status;
 
   if (req.query.isApproved) {
-    match.isApproved = req.query.isApproved === "false";
+    isApproved = [{ isApproved: req.query.isApproved === 'true' ? true : false }];
+  } else {
+    isApproved = [{ isApproved: false }, { isApproved: true }];
+  }
+
+  if (req.query.status) {
+    status = req.query.status;
+  } else {
+    status = 'active';
   }
 
   if (req.query.sortBy) {
-    const parts = req.query.sortBy.split(":");
-    sort[parts[0]] = parts[1] === "desc" ? -1 : 1;
+    const parts = req.query.sortBy.split(':');
+    sort[parts[0]] = parts[1] === 'desc' ? -1 : 1;
+  } else {
+    sort = { startDate: 1 };
   }
+  sort.type = 'asc';
 
   try {
-    await req.user
-      .populate({
-        path: "activities",
-        match,
-        options: {
-          limit: parseInt(req.query.limit),
-          skip: parseInt(req.query.skip),
-          sort,
-        },
-      })
-      .execPopulate();
-    res.send(req.user.activities);
+    const activities = await Activity.find({
+      status: status,
+      $or: isApproved,
+    })
+      .sort(sort)
+      .exec();
+
+    let page = parseInt(req.query.page) || 1;
+    let limit = parseInt(1) || 0;
+
+    let startIndex = (page - 1) * limit;
+    let endIndex = page * limit;
+
+    let next = ++page;
+    let prev = --page;
+
+    const data = {};
+
+    if (endIndex < activities.length) {
+      data.next = {
+        page: next,
+        limit: limit,
+      };
+    }
+
+    if (startIndex > 0) {
+      data.previous = {
+        page: --prev,
+        limit: limit,
+      };
+    }
+
+    data.startIndex = startIndex;
+    data.endIndex = endIndex;
+    data.length = activities.length;
+
+    const filteredList = activities.filter((activity) => activity.endDate > new Date(Date.now()));
+
+    data.results = filteredList.slice(startIndex, endIndex);
+
+    res.send(data);
   } catch (error) {
     console.log(error);
     res.status(500).send(error);
@@ -79,13 +108,12 @@ router.get("/activities", auth, async (req, res) => {
 });
 
 // Get a single activity
-router.get("/activities/:id", auth, async (req, res) => {
+router.get('/activities/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
     const activity = await Activity.findOne({
       _id: _id,
-      relatedEmailId: req.user.email,
     });
 
     if (!activity) {
@@ -98,18 +126,15 @@ router.get("/activities/:id", auth, async (req, res) => {
 });
 
 // Delete an activity by id
-router.delete("/activities/:id", auth, async (req, res) => {
+router.delete('/activities/:id', async (req, res) => {
   const _id = req.params.id;
-
   try {
     const activity = await Activity.findOneAndDelete({
       _id: _id,
-      relatedEmailId: req.user.email,
     });
 
-    console.log(activity);
     if (!activity) {
-      res.status(404).send("Activity not found!");
+      res.status(404).send('Activity not found!');
     }
 
     res.send(activity);
@@ -120,14 +145,13 @@ router.delete("/activities/:id", auth, async (req, res) => {
 });
 
 // Update activity by id
-router.patch("/activities/:id", auth, async (req, res) => {
+router.patch('/activities/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
     const activity = await Activity.findOneAndUpdate(
       {
         _id: _id,
-        relatedEmailId: req.user.email,
       },
       req.body,
       {
@@ -135,7 +159,7 @@ router.patch("/activities/:id", auth, async (req, res) => {
         runValidators: true,
       }
     );
-    console.log(activity);
+
     if (!activity) {
       return res.status(404).send();
     }

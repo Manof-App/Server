@@ -1,17 +1,11 @@
 // Imports
-const mongoose = require("mongoose");
-const validator = require("validator");
-const UTILS = require("../../common/utils.js");
+const mongoose = require('mongoose');
+const validator = require('validator');
+const UTILS = require('../../common/utils.js');
 
 // Create activity schema
 const activitySchema = new mongoose.Schema(
   {
-    relatedEmailId: {
-      type: mongoose.Schema.Types.String,
-      required: true,
-      ref: "User",
-    },
-
     activityName: {
       type: String,
       required: false,
@@ -114,7 +108,7 @@ const activitySchema = new mongoose.Schema(
       type: String,
       required: false,
       trim: true,
-      default: "not active",
+      default: 'not_active',
     },
   },
 
@@ -123,12 +117,18 @@ const activitySchema = new mongoose.Schema(
   }
 );
 
-activitySchema.virtual("officials", {
-  ref: "Official",
-  localField: "_id",
-  foreignField: "relatedActivityId",
+activitySchema.virtual('officials', {
+  ref: 'Official',
+  localField: '_id',
+  foreignField: 'relatedActivityId',
+});
+
+activitySchema.virtual('assignments', {
+  ref: 'Assignment',
+  localField: '_id',
+  foreignField: 'relatedActivityId',
 });
 
 // Create activity model and exports
-const Activity = mongoose.model("Activity", activitySchema);
+const Activity = mongoose.model('Activity', activitySchema);
 module.exports = Activity;

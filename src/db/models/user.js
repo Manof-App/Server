@@ -1,9 +1,9 @@
 // Imports
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const UTILS = require("../../common/utils.js");
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const UTILS = require('../../common/utils.js');
 
 // Create user schema
 const userSchema = new mongoose.Schema(
@@ -12,7 +12,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      default: "מנהל מחלקה",
+      default: 'מנהל מחלקה',
     },
 
     userId: {
@@ -21,7 +21,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate(value) {
         if (!UTILS.isValidId(value)) {
-          throw new Error("ID number must be 9 digits length");
+          throw new Error('ID number must be 9 digits length');
         }
       },
     },
@@ -30,22 +30,12 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       trim: true,
-      validate(value) {
-        if (!UTILS.isValidName(value)) {
-          throw new Error("Name must be minimum 2 characters");
-        }
-      },
     },
 
     lastName: {
       type: String,
       required: false,
       trim: true,
-      validate(value) {
-        if (!UTILS.isValidName(value)) {
-          throw new Error("Name must be minimum 2 characters");
-        }
-      },
     },
 
     email: {
@@ -55,9 +45,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate(value) {
         if (!validator.isEmail(value)) {
-          throw new Error(
-            "Email is invalid, try again using the suggested pattern name@domain.com"
-          );
+          throw new Error('Email is invalid, try again using the suggested pattern name@domain.com');
         }
       },
     },
@@ -66,41 +54,33 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      default: "",
+      default: '',
       validate(value) {
         if (!UTILS.isValidPassword(value)) {
-          throw new Error("Password is invalid");
+          throw new Error('Password is invalid');
         }
       },
     },
 
-    address: {
+    dateOfBirth: {
+      type: Date,
       require: false,
-      house: {
-        type: String,
-        require: false,
-        default: "House address is missing",
-      },
+      trim: true,
+      default: new Date(),
+    },
 
-      street: {
-        type: String,
-        require: false,
-        default: "Street address is missing",
-      },
-
-      city: {
-        type: String,
-        require: false,
-        default: "City address is missing",
-      },
+    address: {
+      type: String,
+      require: false,
+      trim: true,
     },
 
     phone: {
       type: String,
       required: false,
       validate(value) {
-        if (!validator.isMobilePhone(value, ["he-IL"])) {
-          throw new Error("Invalid phone number");
+        if (!UTILS.isValidPhoneNumber(value)) {
+          throw new Error('Phone number pattern: 05-xxx-xxxx only!');
         }
       },
     },
@@ -119,24 +99,18 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.virtual("activities", {
-  ref: "Activity",
-  localField: "email",
-  foreignField: "relatedEmailId",
-});
-
 // Verify user credentials before login action takes place
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error("Unable to login");
+    throw new Error('Unable to login');
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
-    throw new Error("Unable to login");
+    throw new Error('Unable to login');
   }
   return user;
 };
@@ -155,26 +129,23 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  const token = jwt.sign(
-    { userId: user.userId.toString() },
-    "Omer&ZachManofApp"
-  );
+  const token = jwt.sign({ userId: user.userId.toString() }, 'Omer&ZachManofApp');
 
   try {
     user.tokens = user.tokens.concat({ token });
     await user.save();
   } catch (error) {
-    console.log("Error", error);
+    console.log('Error', error);
   }
 
   return token;
 };
 
 // Hash the plain text password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
   const user = this;
 
-  if (user.isModified("password")) {
+  if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
 
@@ -191,5 +162,5 @@ userSchema.pre("save", async function (next) {
 });*/
 
 // Create user model and exports
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
 module.exports = User;

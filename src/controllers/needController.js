@@ -1,12 +1,11 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const Need = require("../db/models/need");
-const auth = require("../middleware/auth.js");
+const express = require('express');
+const mongoose = require('mongoose');
+const Need = require('../db/models/need');
 
 const router = new express.Router();
 
 // Create Need
-router.post("/needs", auth, async (req, res) => {
+router.post('/needs', async (req, res) => {
   const _id = req.body.relatedActivityId;
   console.log(req.body);
   try {
@@ -24,7 +23,7 @@ router.post("/needs", auth, async (req, res) => {
 });
 
 // Delete Need by id
-router.delete("/needs/:id", auth, async (req, res) => {
+router.delete('/needs/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
@@ -33,7 +32,7 @@ router.delete("/needs/:id", auth, async (req, res) => {
     });
 
     if (!need) {
-      res.status(404).send("Need was not found!");
+      res.status(404).send('Need was not found!');
     }
 
     res.send(need);
@@ -44,7 +43,7 @@ router.delete("/needs/:id", auth, async (req, res) => {
 });
 
 // Get Need by activity id
-router.get("/needs/:id", auth, async (req, res) => {
+router.get('/needs/:id', async (req, res) => {
   const _id = req.params.id;
   try {
     const need = await Need.findOne({
@@ -52,17 +51,16 @@ router.get("/needs/:id", auth, async (req, res) => {
     });
 
     if (!need) {
-      res.status(404).send();
+      return res.status(404).send();
     }
     res.send(need);
   } catch (error) {
-    console.log(error);
     res.status(500).send(error);
   }
 });
 
 // Update activity by id
-router.patch("/needs/:id", auth, async (req, res) => {
+router.patch('/needs/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {

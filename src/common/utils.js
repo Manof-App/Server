@@ -12,6 +12,11 @@ const isValidName = (username) => {
   return name.test(username);
 };
 
+const isValidPhoneNumber = (userPhone) => {
+  const pattern = /^[0][5][0|2|3|4|5|9]{1}[-]{0,1}[0-9]{3}[-]{0,1}[0-9]{4}/;
+  return pattern.test(userPhone);
+};
+
 // Password Should contain at least one digit
 // & at least one lower case
 // & at least one upper case
@@ -24,51 +29,9 @@ const isValidPassword = (userPassword) => {
   return true;
 };
 
-const convertToDate = (dateToCheck) => {
-  const dateForm = dateToCheck;
-  const date = dateForm.split("/");
-  const form = new Date(date[2], parseInt(date[1]) - 1, parseInt(date[0]) + 1);
-
-  return form;
-};
-
-const checkBetweenDates = (roomDates, orderSdate, orderEdate) => {
-  const roomStartDate = convertToDate(roomDates.startDate);
-  const roomEndDate = convertToDate(roomDates.endDate);
-  const orderStartDate = convertToDate(orderSdate);
-  const orderEndDate = convertToDate(orderEdate);
-
-  const currDate = new Date();
-  console.log(roomDates);
-  console.log(orderSdate);
-  console.log(orderEdate);
-
-  if (
-    orderStartDate.getTime() > roomStartDate.getTime() &&
-    orderEndDate.getTime() < roomEndDate.getTime()
-  ) {
-    return false;
-  } else if (orderStartDate.getTime() < currDate.getTime()) {
-    return false;
-  } else if (orderStartDate.getTime() === roomStartDate.getTime()) {
-    return false;
-  }
-  return true;
-};
-
-function convertDateToString(inputFormat) {
-  function pad(s) {
-    return s < 10 ? "0" + s : s;
-  }
-  const d = new Date(inputFormat);
-  return [pad(d.getDate()), pad(d.getMonth() + 1), d.getFullYear()].join("/");
-}
-
 module.exports = {
   isValidId: isValidId,
   isValidName: isValidName,
   isValidPassword: isValidPassword,
-  convertToDate: convertToDate,
-  checkBetweenDates: checkBetweenDates,
-  convertDateToString: convertDateToString,
+  isValidPhoneNumber: isValidPhoneNumber,
 };

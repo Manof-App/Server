@@ -1,14 +1,14 @@
-const express = require("express");
-const Official = require("../db/models/official");
-const Activity = require("../db/models/activity");
-const auth = require("../middleware/auth");
-const mongoose = require("mongoose");
-ObjectId = require("mongodb").ObjectID;
+const express = require('express');
+const Official = require('../db/models/official');
+const Activity = require('../db/models/activity');
+const auth = require('../middleware/auth');
+const mongoose = require('mongoose');
+ObjectId = require('mongodb').ObjectID;
 
 const router = new express.Router();
 
 // Create Official
-router.post("/officials", auth, async (req, res) => {
+router.post('/officials', async (req, res) => {
   const _id = req.body.relatedActivityId;
 
   console.log(req.body);
@@ -27,16 +27,18 @@ router.post("/officials", auth, async (req, res) => {
   }
 });
 
-// Get all activities for logged in user
-// GET /activities?isApproved=true
-// GET /activities?limit=10&skip=0
-// GET /activities?sortBy=startDate_desc
-router.get("/officials/:id", auth, async (req, res) => {
+// Get all officials for a single activity
+router.get('/officials/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
     const activity = await Activity.findById(_id);
-    await activity.populate("officials").execPopulate();
+    await activity.populate('officials').execPopulate();
+
+    if (!activity.officials) {
+      return res.status(404).send();
+    }
+
     res.send(activity.officials);
   } catch (error) {
     console.log(error);
@@ -45,7 +47,7 @@ router.get("/officials/:id", auth, async (req, res) => {
 });
 
 // Delete Official by id
-router.delete("/officials/:id", auth, async (req, res) => {
+router.delete('/officials/:id', async (req, res) => {
   const _id = req.params.id;
 
   try {
@@ -53,9 +55,8 @@ router.delete("/officials/:id", auth, async (req, res) => {
       _id: _id,
     });
 
-    console.log(official);
     if (!official) {
-      res.status(404).send("Official not found!");
+      res.status(404).send('Official not found!');
     }
 
     res.send(official);
@@ -66,9 +67,9 @@ router.delete("/officials/:id", auth, async (req, res) => {
 });
 
 // Update Official by id
-router.patch("/officials/:id", auth, async (req, res) => {
+router.patch('/officials/:id', async (req, res) => {
   const _id = req.params.id;
-  let arrayHelper = _id.split("");
+  let arrayHelper = _id.split('');
 
   let objId = new String();
 
