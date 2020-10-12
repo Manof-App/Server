@@ -4,19 +4,18 @@ const bodyParser = require('body-parser');
 const logger = require('morgan');
 const express = require('express');
 const cookieParser = require('cookie-parser');
+
 const authRouter = require('./routes/authRouter');
 
 const app = express();
 
 // Routes which should handle requests
-app.use(cors());
-
-app.all('/', function (req, res, next) {
+app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'X-Requested-With');
   next();
 });
 
+app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
