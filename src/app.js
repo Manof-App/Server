@@ -1,16 +1,23 @@
-const cors = require("cors");
-const path = require("path");
-const bodyParser = require("body-parser");
-const logger = require("morgan");
-const express = require("express");
-const cookieParser = require("cookie-parser");
-const authRouter = require("./routes/authRouter");
+const cors = require('cors');
+const path = require('path');
+const bodyParser = require('body-parser');
+const logger = require('morgan');
+const express = require('express');
+const cookieParser = require('cookie-parser');
+const authRouter = require('./routes/authRouter');
 
 const app = express();
 
 // Routes which should handle requests
 app.use(cors());
-app.use(logger("dev"));
+
+app.all('/', function (req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+  next();
+});
+
+app.use(logger('dev'));
 app.use(express.json());
 app.use(cookieParser());
 app.use(bodyParser.raw());
