@@ -1,4 +1,4 @@
 // Set up database url
-const dbURI =
-  "mongodb+srv://oNionUxx:austinpower1991@cluster0.8xvyg.mongodb.net/manof-app-api";
+
+const dbURI = process.env.MONGODB_URI;
 module.exports = dbURI;

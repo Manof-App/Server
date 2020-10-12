@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const validator = require('validator');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const UTILS = require('../../common/utils.js');
+const Utils = require('../../common/utils.js');
 
 // Create user schema
 const userSchema = new mongoose.Schema(
@@ -17,10 +17,10 @@ const userSchema = new mongoose.Schema(
 
     userId: {
       type: String,
-      required: false,
+      required: true,
       unique: true,
       validate(value) {
-        if (!UTILS.isValidId(value)) {
+        if (!Utils.isValidId(value)) {
           throw new Error('ID number must be 9 digits length');
         }
       },
@@ -56,7 +56,7 @@ const userSchema = new mongoose.Schema(
       trim: true,
       default: '',
       validate(value) {
-        if (!UTILS.isValidPassword(value)) {
+        if (!Utils.isValidPassword(value)) {
           throw new Error('Password is invalid');
         }
       },
@@ -79,7 +79,7 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: false,
       validate(value) {
-        if (!UTILS.isValidPhoneNumber(value)) {
+        if (!Utils.isValidPhoneNumber(value)) {
           throw new Error('Phone number pattern: 05-xxx-xxxx only!');
         }
       },
@@ -129,7 +129,9 @@ userSchema.methods.toJSON = function () {
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
 
-  const token = jwt.sign({ userId: user.userId.toString() }, 'Omer&ZachManofApp');
+  const jwtSecret = process.env.JWT_SECRET;
+
+  const token = jwt.sign({ userId: user.userId.toString() }, jwtSecret);
 
   try {
     user.tokens = user.tokens.concat({ token });
@@ -148,7 +150,6 @@ userSchema.pre('save', async function (next) {
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
-
   next();
 });
 

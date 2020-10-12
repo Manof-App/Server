@@ -1,15 +1,21 @@
 const express = require('express');
 const User = require('../db/models/user');
 const auth = require('../middleware/auth');
+const Utils = require('../common/utils.js');
+const account = require('../emails/account.js');
 
 const router = new express.Router();
 
 // Create new user
 router.post('/users/register', async (req, res) => {
   const user = new User(req.body);
+
   try {
     await user.save();
+
+    account.sendWelcomeEmail(user.email, user.password);
     const token = await user.generateAuthToken();
+
     res.status(201).send({ user, token });
   } catch (error) {
     res.status(400).send(error);
@@ -92,13 +98,9 @@ router.delete('/users/:id', async (req, res) => {
 
 // Update logged in user
 router.patch('/users/me', auth, async (req, res) => {
-  console.log(req.body);
   const updates = Object.keys(req.body);
-  console.log(updates);
-  const allowUpdates = ['firstName', 'lastName', 'email', 'address', 'phone', 'role', 'password'];
+  const allowUpdates = ['firstName', 'lastName', 'email', 'address', 'phone', 'role'];
   const isValidationOperation = updates.every((currentUpdate) => allowUpdates.includes(currentUpdate));
-
-  console.log(isValidationOperation);
 
   if (!isValidationOperation) {
     return res.status(400).send({ error: 'Invalid updates!' });
@@ -108,6 +110,25 @@ router.patch('/users/me', auth, async (req, res) => {
     updates.forEach((update) => (req.user[update] = req.body[update]));
     await req.user.save();
     res.send(req.user);
+  } catch (error) {
+    res.status(400).send({ error: error });
+  }
+});
+
+router.patch('/users/resetPassword', async (req, res) => {
+  const userEmail = req.body.email;
+
+  try {
+    const filter = { email: userEmail };
+    const password = { password: Utils.generatePassword() };
+
+    await User.findOneAndUpdate(filter, password, function (err, success) {
+      if (err) {
+        return err;
+      }
+      account.resetPassword(userEmail, password);
+      res.json({ status: '200' });
+    });
   } catch (error) {
     res.status(400).send({ error: error });
   }

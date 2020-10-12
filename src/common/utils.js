@@ -12,6 +12,7 @@ const isValidName = (username) => {
   return name.test(username);
 };
 
+// Phone number should be in the form of '05-XXX-XXXX'
 const isValidPhoneNumber = (userPhone) => {
   const pattern = /^[0][5][0|2|3|4|5|9]{1}[-]{0,1}[0-9]{3}[-]{0,1}[0-9]{4}/;
   return pattern.test(userPhone);
@@ -29,9 +30,20 @@ const isValidPassword = (userPassword) => {
   return true;
 };
 
+const generatePassword = () => {
+  let length = 8,
+    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    retVal = '';
+  for (let i = 0, n = charset.length; i < length; ++i) {
+    retVal += charset.charAt(Math.floor(Math.random() * n));
+  }
+  return retVal;
+};
+
 module.exports = {
   isValidId: isValidId,
   isValidName: isValidName,
   isValidPassword: isValidPassword,
+  generatePassword: generatePassword,
   isValidPhoneNumber: isValidPhoneNumber,
 };
