@@ -22,7 +22,7 @@ const sendWelcomeEmail = (email, password) => {
   });
 };
 
-const resetPassword = (email, user) => {
+const resetPassword = (email, password) => {
   sgMail.send({
     to: email,
     from: 'manofApp2020@gmail.com',
@@ -30,7 +30,7 @@ const resetPassword = (email, user) => {
     html: `<div style="width: 100px; height:100px; border:">
     <h1 style="color: #333">סיסמתך החדשה</h1>
    <p style="font-size: 20
-   px; font-weight:bold;">${user.password}</p>
+   px; font-weight:bold;">${password}</p>
 
     </div>
     `,
