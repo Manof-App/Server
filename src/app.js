@@ -10,7 +10,6 @@ const authRouter = require('./routes/authRouter');
 const app = express();
 
 // Routes which should handle requests
-app.options('*', cors());
 
 app.use(cors());
 app.use(logger('dev'));
