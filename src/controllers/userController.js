@@ -3,6 +3,7 @@ const User = require('../db/models/user');
 const auth = require('../middleware/auth');
 const Utils = require('../common/utils.js');
 const account = require('../emails/account.js');
+const bcrypt = require('bcryptjs');
 
 const router = new express.Router();
 
@@ -118,16 +119,17 @@ router.patch('/users/resetPassword', async (req, res) => {
   const userEmail = req.body.email;
 
   try {
-    const filter = { email: userEmail };
-    const password = { password: Utils.generatePassword() };
+   const filter = { email: userEmail };
+   const password = Utils.generatePassword();
 
-    await User.findOneAndUpdate(filter, password, function (err, success) {
-      if (err) {
-        return err;
-      }
-      account.resetPassword(userEmail, password);
-      res.json({ status: '200' });
-    });
+  await User.findOne(filter, function(err, doc) {
+    if (err) return false;
+    doc.password = password
+    doc.save();
+  });
+
+    account.resetPassword(userEmail, password);
+    res.json({ status: '200' });
   } catch (error) {
     res.status(400).send({ error: error });
   }

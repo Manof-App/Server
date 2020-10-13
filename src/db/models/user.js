@@ -146,12 +146,13 @@ userSchema.methods.generateAuthToken = async function () {
 // Hash the plain text password before saving
 userSchema.pre('save', async function (next) {
   const user = this;
-
+  //console.log('check')
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();
 });
+
 
 // Delete user orders when user is removed
 /*userSchema.pre("remove", async function (next) {
