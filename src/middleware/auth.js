@@ -1,15 +1,16 @@
-const jwt = require("jsonwebtoken");
-const User = require("../db/models/user.js");
+const jwt = require('jsonwebtoken');
+const User = require('../db/models/user.js');
 
 // Middleware for customize server requests
 const auth = async (req, res, next) => {
   try {
-    const authToken = req.header("Authorization").replace("Bearer ", "");
-    const decoded = jwt.verify(authToken, "Omer&ZachManofApp");
+    const jwt_secret = process.env.JWT_SECRET;
+    const authToken = req.header('Authorization').replace('Bearer ', '');
+    const decoded = jwt.verify(authToken, jwt_secret);
 
     const user = await User.findOne({
       userId: decoded.userId,
-      "tokens.token": authToken,
+      'tokens.token': authToken,
     });
 
     if (!user) {
@@ -21,7 +22,7 @@ const auth = async (req, res, next) => {
 
     next();
   } catch (error) {
-    res.status(401).send({ error: "Please authenticate first" });
+    res.status(401).send({ error: 'Please authenticate first' });
   }
 };
 
