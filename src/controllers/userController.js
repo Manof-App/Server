@@ -12,7 +12,7 @@ router.post('/users/register', async (req, res) => {
 
   try {
     await user.save();
-    account.sendWelcomeEmail(user.email, user.password);
+    account.sendWelcomeEmail(user.email, req.body.password);
     const token = await user.generateAuthToken();
 
     res.status(201).send({ user, token });

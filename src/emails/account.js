@@ -1,4 +1,5 @@
 const sgMail = require('@sendgrid/mail');
+const chalk = require('chalk')
 
 const sendGridApiKey = process.env.SENDGRID_API_KEY;
 
@@ -7,9 +8,10 @@ sgMail.setApiKey(sendGridApiKey);
 const sendWelcomeEmail = (email, password) => {
   console.log(email);
   console.log(password);
+  console.log(chalk.green('check 1 check 2 check 3'))
   sgMail.send({
     to: email,
-    from: 'manof.application@gmail.com',
+    from: 'manofApp2020@gmail.com',
     subject: 'הצטרפותך למערכת מנו"ף',
     html: `<div style="width: 100px; height:100px; border:">
         <h1 style="color: #333">סיסמתך החדשה</h1>
@@ -26,7 +28,7 @@ const sendWelcomeEmail = (email, password) => {
 const resetPassword = (email, user) => {
   sgMail.send({
     to: email,
-    from: 'manof.application@gmail.com',
+    from: 'manofApp2020@gmail.com',
     subject: 'איפוס סיסמת משתמש',
     html: `<div style="width: 100px; height:100px; border:">
     <h1 style="color: #333">סיסמתך החדשה</h1>
@@ -35,9 +37,15 @@ const resetPassword = (email, user) => {
 
     </div>
     `,
-  });
+  }).then(() => {
+    console.log('Email sent')
+  })
+  .catch((error) => {
+    console.error(error)
+  })
 };
 
+resetPassword('omerlubko@gmail.com', user)
 module.exports = {
   sendWelcomeEmail: sendWelcomeEmail,
   resetPassword: resetPassword,
