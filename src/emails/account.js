@@ -6,9 +6,6 @@ const sendGridApiKey = process.env.SENDGRID_API_KEY;
 sgMail.setApiKey(sendGridApiKey);
 
 const sendWelcomeEmail = (email, password) => {
-  console.log(email);
-  console.log(password);
-  console.log(chalk.green('check 1 check 2 check 3'))
   sgMail.send({
     to: email,
     from: 'manofApp2020@gmail.com',
@@ -45,7 +42,6 @@ const resetPassword = (email, user) => {
   })
 };
 
-resetPassword('omerlubko@gmail.com', user)
 module.exports = {
   sendWelcomeEmail: sendWelcomeEmail,
   resetPassword: resetPassword,
