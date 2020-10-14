@@ -82,14 +82,14 @@ router.get('/users/all', async (req, res) => {
 
 // Delete user
 router.delete('/users/:id', async (req, res) => {
-  const _email = req.params.id;
-  console.log(_email);
+  const _userId = req.params.id;
+  console.log(_userId);
   try {
     const user = await User.findOneAndDelete({
-      email: _email,
+      userId: _userId,
     });
 
-    res.send(req.user);
+    res.send({status: '200'})
   } catch (error) {
     res.status(500).send('Failed to delete');
   }
@@ -113,6 +113,31 @@ router.patch('/users/me', auth, async (req, res) => {
     res.status(400).send({ error: error });
   }
 });
+
+router.patch('/users/role', async(req, res) => {
+  console.log(req.body)
+  const filter = {userId: req.body.userId};
+  const role = req.body.role;
+
+  try {
+
+    let user = await User.findOne(filter, function(err, doc) {
+      if (err) return false;
+      doc.role = role
+      doc.save();
+    });
+    
+    if(!user) {
+      return res.status(400).send();
+    }
+
+    res.send(user);
+
+  } catch (error) {
+
+  }
+
+})
 
 router.patch('/users/resetPassword', async (req, res) => {
   const userEmail = req.body.email;

@@ -60,7 +60,7 @@ router.get('/activities', async (req, res) => {
   sort.type = 'asc';
 
   try {
-    const activities = await Activity.find({
+    const activities = await Activity.find({       
       status: status,
       $or: isApproved,
     })
@@ -68,7 +68,7 @@ router.get('/activities', async (req, res) => {
       .exec();
 
     let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(1) || 0;
+    let limit = parseInt(2) || 0;
 
     let startIndex = (page - 1) * limit;
     let endIndex = page * limit;
