@@ -73,7 +73,7 @@ router.patch('/officials/:id', async (req, res) => {
   try {
     const official = await Official.findOneAndUpdate(
       {
-        _id: id[0],
+        _id: id,
       },
       req.body
     );
