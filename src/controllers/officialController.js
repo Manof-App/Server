@@ -69,6 +69,7 @@ router.delete('/officials/:id', async (req, res) => {
 // Update Official by id
 router.patch('/officials/:id', async (req, res) => {
   const _id = req.params.id;
+  const _relatedActivityId = req.body.relatedActivityId;
   let arrayHelper = _id.split('');
 
   let objId = new String();
@@ -77,17 +78,14 @@ router.patch('/officials/:id', async (req, res) => {
     objId += arrayHelper[i];
   }
 
+  console.log(objId)
+
   try {
     const official = await Official.findOneAndUpdate(
       {
         _id: objId,
-        relatedActivityId: req.body.relatedActivityId,
       },
-      req.body,
-      {
-        new: true,
-        runValidators: true,
-      }
+      req.body
     );
     if (!official) {
       return res.status(404).send();
