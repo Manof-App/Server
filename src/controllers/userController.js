@@ -3,7 +3,6 @@ const User = require('../db/models/user');
 const auth = require('../middleware/auth');
 const Utils = require('../common/utils.js');
 const account = require('../emails/account.js');
-const bcrypt = require('bcryptjs');
 
 const router = new express.Router();
 
