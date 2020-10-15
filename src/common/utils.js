@@ -1,4 +1,4 @@
-// My Custom Exceptions //
+// Custom Exceptions //
 
 // ID number Should be 9 digits only
 const isValidId = (userId) => {
@@ -23,10 +23,10 @@ const isValidPhoneNumber = (userPhone) => {
 // & at least one upper case
 // & at least 8 from the mentioned characters
 const isValidPassword = (userPassword) => {
-  // if (userPassword === "") {
-  //   const password = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
-  //   return password.test(userPassword);
-  // }
+  if (userPassword === "") {
+    const password = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
+    return password.test(userPassword);
+  }
   return true;
 };
 

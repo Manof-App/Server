@@ -35,10 +35,10 @@ const resetPassword = (email, password) => {
     </div>
     `,
   }).then(() => {
-    console.log('Email sent')
+    console.log(chalk.bgGreen('Email sent'));
   })
   .catch((error) => {
-    console.error(error)
+    console.error(chalk.bgGreen(`${error}`))
   })
 };
 

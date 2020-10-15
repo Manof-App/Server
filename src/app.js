@@ -1,5 +1,4 @@
 const cors = require('cors');
-const path = require('path');
 const bodyParser = require('body-parser');
 const logger = require('morgan');
 const express = require('express');

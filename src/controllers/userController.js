@@ -1,11 +1,14 @@
+// Imports
 const express = require('express');
+const router = new express.Router();
+
 const User = require('../db/models/user');
 const auth = require('../middleware/auth');
+
 const Utils = require('../common/utils.js');
 const account = require('../emails/account.js');
-const { isRegularExpressionLiteral } = require('typescript');
 
-const router = new express.Router();
+
 
 // Create new user
 router.post('/users/register', async (req, res) => {
@@ -72,6 +75,7 @@ router.get('/users/me', auth, async (req, res) => {
   }
 });
 
+// Get all users
 router.get('/users/all', async (req, res) => {
   try {
     const users = await User.find({});
@@ -140,22 +144,21 @@ router.patch('/users/role', async(req, res) => {
 
 })
 
+// Reset user password
 router.patch('/users/resetPassword', async (req, res) => {
   const userEmail = req.body.email;
+  const password = Utils.generatePassword();
 
   try {
-   const filter = { email: userEmail };
-   const password = '123456';
-
-  await User.findOne(filter, function(err, doc) {
+  await User.findOne({email: userEmail}, function(err, doc) {
     if (err) { return false; }
     if(doc) {
       doc.password = password
-      //account.resetPassword(userEmail, password);
+      account.resetPassword(userEmail, password);
       res.status(200).send('Action was successfully committed!');
     doc.save();
     } else {
-      return res.status(404).send('Email address was not found!');
+      return res.status(404).send();
     }
   });
 
