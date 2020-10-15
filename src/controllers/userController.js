@@ -3,6 +3,7 @@ const User = require('../db/models/user');
 const auth = require('../middleware/auth');
 const Utils = require('../common/utils.js');
 const account = require('../emails/account.js');
+const { isRegularExpressionLiteral } = require('typescript');
 
 const router = new express.Router();
 
@@ -54,9 +55,9 @@ router.post('/users/logoutAll', auth, async (req, res) => {
   try {
     req.user.tokens = [];
     await req.user.save();
-    res.json({ status: '200' });
+    //res.json({ status: '200' });
 
-    //res.status(200).send('Successfully disconnected from all devices!');
+    res.status(200).send('Successfully disconnected from all devices!');
   } catch (error) {
     res.status(500).send('Failed to logged out from all devices');
   }
@@ -85,7 +86,7 @@ router.delete('/users/:id', async (req, res) => {
   const _userId = req.params.id;
   console.log(_userId);
   try {
-    const user = await User.findOneAndDelete({
+    await User.findOneAndDelete({
       userId: _userId,
     });
 
@@ -134,7 +135,7 @@ router.patch('/users/role', async(req, res) => {
     res.send(user);
 
   } catch (error) {
-
+    return res.status(400).send();
   }
 
 })
@@ -144,16 +145,20 @@ router.patch('/users/resetPassword', async (req, res) => {
 
   try {
    const filter = { email: userEmail };
-   const password = Utils.generatePassword();
+   const password = '123456';
 
   await User.findOne(filter, function(err, doc) {
-    if (err) return false;
-    doc.password = password
+    if (err) { return false; }
+    if(doc) {
+      doc.password = password
+      //account.resetPassword(userEmail, password);
+      res.status(200).send('Action was successfully committed!');
     doc.save();
+    } else {
+      return res.status(404).send('Email address was not found!');
+    }
   });
 
-    account.resetPassword(userEmail, password);
-    res.json({ status: '200' });
   } catch (error) {
     res.status(400).send({ error: error });
   }

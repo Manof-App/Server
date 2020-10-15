@@ -102,12 +102,13 @@ const userSchema = new mongoose.Schema(
 // Verify user credentials before login action takes place
 userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
-
+  
   if (!user) {
     throw new Error('Unable to login');
   }
-
+  console.log(password);
   const isMatch = await bcrypt.compare(password, user.password);
+  console.log(isMatch);
 
   if (!isMatch) {
     throw new Error('Unable to login');
@@ -146,7 +147,7 @@ userSchema.methods.generateAuthToken = async function () {
 // Hash the plain text password before saving
 userSchema.pre('save', async function (next) {
   const user = this;
-  //console.log('check')
+  console.log('check')
   if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
