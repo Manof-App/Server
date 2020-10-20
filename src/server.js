@@ -26,10 +26,14 @@ const server = http.createServer(app);
       useUnifiedTopology: true,
     });
 
-    console.log(chalk.blue('Successfully connected to MongoDB database!'));
+    console.log(
+      chalk.blue(
+        `Successfully connected to ${chalk.yellow('MongoDB database!')}`
+      )
+    );
     server.listen(
       PORT,
-      console.log(chalk.yellow('Server is up at port ' + PORT + '!'))
+      console.log(chalk.magentaBright('Server is up at port ' + PORT + '!'))
     );
   } catch (err) {
     console.log('error: ' + err);
