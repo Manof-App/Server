@@ -9,12 +9,12 @@ const dbURI = require('./db/mongoose');
 const PORT = process.env.PORT;
 const server = http.createServer(app);
 
-var reqTimer = setTimeout(function wakeUp() {
-  request('https://manof-application.herokuapp.com/', function () {
-    console.log('WAKE UP DYNO');
-  });
-  return (reqTimer = setTimeout(wakeUp, 1200000));
-}, 1200000);
+// const reqTimer = setTimeout(function wakeUp() {
+//   request('https://manof-application.herokuapp.com/', function () {
+//     console.log('WAKE UP DYNO');
+//   });
+//   return (reqTimer = setTimeout(wakeUp, 1200000));
+// }, 1200000);
 
 // Set mongoose connection
 (async () => {
