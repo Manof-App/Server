@@ -155,13 +155,13 @@ userSchema.pre("save", async function (next) {
 });
 
 // Delete user orders when user is removed
-/*userSchema.pre("remove", async function (next) {
-  const user = this;
+// userSchema.pre("remove", async function (next) {
+//   const user = this;
 
-  await Order.deleteMany({ relatedCustomerId: user._id });
+//   await Order.deleteMany({ relatedCustomerId: user._id });
 
-  next();
-});*/
+//   next();
+// });
 
 // Create user model and exports
 const User = mongoose.model("User", userSchema);
