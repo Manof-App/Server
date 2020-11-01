@@ -1,18 +1,19 @@
 // Imports
-const mongoose = require("mongoose");
-const validator = require("validator");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const Utils = require("../../common/utils.js");
+const mongoose = require('mongoose');
+const validator = require('validator');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+const Utils = require('../../common/utils.js');
+const { ObjectID } = require('mongodb');
 
 // Create user schema
 const userSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      required: true,
+      required: false,
       trim: true,
-      default: "מנהל מחלקה",
+      default: 'מנהל מחלקה',
     },
 
     userId: {
@@ -21,7 +22,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate(value) {
         if (!Utils.isValidId(value)) {
-          throw new Error("ID number must be 9 digits length");
+          throw new Error('ID number must be 9 digits length');
         }
       },
     },
@@ -45,9 +46,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       validate(value) {
         if (!validator.isEmail(value)) {
-          throw new Error(
-            "Email is invalid, try again using the suggested pattern name@domain.com"
-          );
+          throw new Error('Email is invalid, try again using the suggested pattern name@domain.com');
         }
       },
     },
@@ -56,12 +55,6 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
-      default: "",
-      validate(value) {
-        if (!Utils.isValidPassword(value)) {
-          throw new Error("Password is invalid");
-        }
-      },
     },
 
     dateOfBirth: {
@@ -71,18 +64,18 @@ const userSchema = new mongoose.Schema(
       default: new Date(),
     },
 
-    address: {
-      type: String,
-      require: false,
-      trim: true,
-    },
+    // address: {
+    //   type: String,
+    //   require: false,
+    //   trim: true,
+    // },
 
     phone: {
       type: String,
       required: false,
       validate(value) {
         if (!Utils.isValidPhoneNumber(value)) {
-          throw new Error("Phone number pattern: 05-xxx-xxxx only!");
+          throw new Error('Phone number pattern: 05-xxx-xxxx only!');
         }
       },
     },
@@ -95,7 +88,12 @@ const userSchema = new mongoose.Schema(
         },
       },
     ],
+
+    avatar: {
+      type: Buffer,
+    },
   },
+
   {
     timestamps: true,
   }
@@ -106,30 +104,31 @@ userSchema.statics.findByCredentials = async (email, password) => {
   const user = await User.findOne({ email });
 
   if (!user) {
-    throw new Error("Unable to login");
+    throw new Error('Unable to login');
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
 
   if (!isMatch) {
-    throw new Error("Unable to login");
+    throw new Error('Unable to login');
   }
   return user;
 };
 
 userSchema.methods.toJSON = function () {
   const user = this;
-  const userOBJ = user.toObject();
+  const userObject = user.toObject();
 
-  delete userOBJ.password;
-  delete userOBJ.tokens;
+  delete userObject.password;
+  delete userObject.tokens;
+  delete userObject.avatar;
 
-  return userOBJ;
+  return userObject;
 };
 
+// Generating a token for a single user before register or login take place
 userSchema.methods.generateAuthToken = async function () {
   const user = this;
-
   const jwtSecret = process.env.JWT_SECRET;
 
   const token = jwt.sign({ userId: user.userId.toString() }, jwtSecret);
@@ -138,17 +137,15 @@ userSchema.methods.generateAuthToken = async function () {
     user.tokens = user.tokens.concat({ token });
     await user.save();
   } catch (error) {
-    console.log("Error", error);
+    console.log('Error', error);
   }
-
   return token;
 };
 
 // Hash the plain text password before saving
-userSchema.pre("save", async function (next) {
+userSchema.pre('save', async function (next) {
   const user = this;
-
-  if (user.isModified("password")) {
+  if (user.isModified('password')) {
     user.password = await bcrypt.hash(user.password, 8);
   }
   next();
@@ -164,5 +161,6 @@ userSchema.pre("save", async function (next) {
 // });
 
 // Create user model and exports
-const User = mongoose.model("User", userSchema);
+const User = mongoose.model('User', userSchema);
+
 module.exports = User;

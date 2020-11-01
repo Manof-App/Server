@@ -2,6 +2,9 @@
 const express = require('express');
 const router = new express.Router();
 
+const multer = require('multer');
+const sharp = require('sharp');
+
 const User = require('../db/models/user');
 const auth = require('../middleware/auth');
 
@@ -16,7 +19,6 @@ router.post('/users/register', async (req, res) => {
     await user.save();
     account.sendWelcomeEmail(user.email, req.body.password);
     const token = await user.generateAuthToken();
-
     res.status(201).send({ user, token });
   } catch (error) {
     res.status(400).send(error);
@@ -41,8 +43,8 @@ router.post('/users/login', async (req, res) => {
 // Logout user
 router.post('/users/logout', auth, async (req, res) => {
   try {
-    req.user.tokens = req.user.tokens.filter((token) => {
-      return token.token !== req.token;
+    req.user.tokens = req.user.tokens.filter((currTokenObj) => {
+      return currTokenObj.token !== req.token;
     });
 
     await req.user.save();
@@ -85,14 +87,13 @@ router.get('/users/all', async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/:id', async (req, res) => {
-  const _userId = req.params.id;
-  console.log(_userId);
+router.delete('/users/me', auth, async (req, res) => {
+  const _userId = req.user.userId;
+
   try {
     await User.findOneAndDelete({
       userId: _userId,
     });
-
     res.send({ status: '200' });
   } catch (error) {
     res.status(500).send('Failed to delete');
@@ -102,17 +103,8 @@ router.delete('/users/:id', async (req, res) => {
 // Update logged in user
 router.patch('/users/me', auth, async (req, res) => {
   const updates = Object.keys(req.body);
-  const allowUpdates = [
-    'firstName',
-    'lastName',
-    'email',
-    'address',
-    'phone',
-    'role',
-  ];
-  const isValidationOperation = updates.every((currentUpdate) =>
-    allowUpdates.includes(currentUpdate)
-  );
+  const allowUpdates = ['firstName', 'lastName', 'email', 'address', 'phone', 'role'];
+  const isValidationOperation = updates.every((currentUpdate) => allowUpdates.includes(currentUpdate));
 
   if (!isValidationOperation) {
     return res.status(400).send({ error: 'Invalid updates!' });
@@ -162,7 +154,7 @@ router.patch('/users/resetPassword', async (req, res) => {
       if (doc) {
         doc.password = password;
         account.resetPassword(userEmail, password);
-        res.status(200).send('Action was successfully committed!');
+        res.json({ status: '201' });
         doc.save();
       } else {
         return res.status(404).send();
@@ -170,6 +162,58 @@ router.patch('/users/resetPassword', async (req, res) => {
     });
   } catch (error) {
     res.status(400).send({ error: error });
+  }
+});
+
+// Set multer middleware
+const upload = multer({
+  limits: {
+    fileSize: 1000000,
+  },
+  fileFilter(req, file, cb) {
+    if (!file.originalname.match(/\.(jpg|jpeg|png)$/)) {
+      return cb(new Error('File extension must be either jpg, jpeg or png only!'));
+    }
+    cb(undefined, true);
+  },
+});
+
+// Upload user avatar
+router.post(
+  '/users/me/avatar',
+  auth,
+  upload.single('avatar'),
+  async (req, res) => {
+    const buffer = await sharp(req.file.buffer).resize({ width: 250, height: 250 }).png().toBuffer();
+    req.user.avatar = buffer;
+    await req.user.save();
+    res.send();
+  },
+  (error, req, res, next) => {
+    res.status(400).send({ error: error.message });
+  }
+);
+
+// Delete user avatar
+router.delete('/users/me/avatar', auth, async (req, res) => {
+  req.user.avatar = undefined;
+  await req.user.save();
+  res.send();
+});
+
+// Read user avatar
+router.get('/users/:id/avatar', async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+
+    if (!user || !user.avatar) {
+      throw new Error();
+    }
+
+    res.set('Content-Type', 'image/png');
+    res.send(user.avatar);
+  } catch (error) {
+    res.status(404).send();
   }
 });
 

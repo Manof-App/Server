@@ -23,19 +23,19 @@ const isValidPhoneNumber = (userPhone) => {
 // & at least one upper case
 // & at least 8 from the mentioned characters
 const isValidPassword = (userPassword) => {
-  if (userPassword === "") {
-    const password = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
-    return password.test(userPassword);
-  }
-  return true;
+  const password = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[a-zA-Z0-9]{8,}$/;
+  return password.test(userPassword);
 };
 
 const generatePassword = () => {
-  let length = 8,
-    charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+  let charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789',
+    retVal;
+
+  while (!isValidPassword(retVal)) {
     retVal = '';
-  for (let i = 0, n = charset.length; i < length; ++i) {
-    retVal += charset.charAt(Math.floor(Math.random() * n));
+    for (let i = 0; i < 8; ++i) {
+      retVal += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
   }
   return retVal;
 };

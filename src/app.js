@@ -1,15 +1,14 @@
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const logger = require('morgan');
 const express = require('express');
-const cookieParser = require('cookie-parser');
-
 const authRouter = require('./routes/authRouter');
 
+const logger = require('morgan');
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+
+const cors = require('cors');
 const app = express();
 
 // Routes which should handle requests
-
 app.use(cors());
 app.use(logger('dev'));
 app.use(express.json());

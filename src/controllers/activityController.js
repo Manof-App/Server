@@ -147,6 +147,7 @@ router.delete('/activities/:id', async (req, res) => {
 // Update activity by id
 router.patch('/activities/:id', async (req, res) => {
   const _id = req.params.id;
+  console.log(_id);
 
   try {
     const activity = await Activity.findOneAndUpdate(
@@ -159,6 +160,8 @@ router.patch('/activities/:id', async (req, res) => {
         runValidators: true,
       }
     );
+
+    console.log(activity);
 
     if (!activity) {
       return res.status(404).send();
