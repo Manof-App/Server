@@ -87,8 +87,8 @@ router.get('/users/all', async (req, res) => {
 });
 
 // Delete user
-router.delete('/users/me', auth, async (req, res) => {
-  const _userId = req.user.userId;
+router.delete('/users/:id', auth, async (req, res) => {
+  const _userId = req.params.id;
 
   try {
     await User.findOneAndDelete({
