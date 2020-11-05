@@ -68,7 +68,7 @@ router.get('/activities', async (req, res) => {
       .exec();
 
     let page = parseInt(req.query.page) || 1;
-    let limit = parseInt(2) || 0;
+    let limit = parseInt(3) || 0;
 
     let startIndex = (page - 1) * limit;
     let endIndex = page * limit;
